@@ -7,6 +7,7 @@ let
     pynvim
     sqlalchemy
     psycopg2
+    alembic
   ]);
 in
 pkgs.mkShell {

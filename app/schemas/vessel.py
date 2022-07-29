@@ -1,17 +1,17 @@
 from pydantic import BaseModel
 
+from app.schemas.equipment import Equipment
+
 
 class VesselBase(BaseModel):
-    title: str
-    description: str | None = None
+    code: str
 
 
 class VesselCreate(VesselBase):
     pass
 
-
 class Vessel(VesselBase):
-    code: str
+    equipments: list[Equipment] = []
 
     class Config:
         orm_mode = True

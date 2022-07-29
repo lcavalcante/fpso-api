@@ -4,11 +4,11 @@ from app.models.vessel import Vessel
 from app.schemas.vessel import VesselCreate
 
 
-def get_vessel(db: Session, code: str):
+def read_vessel(db: Session, code: str):
     return db.query(Vessel).filter(Vessel.code == code).first()
 
 
-def get_vessels(db: Session, skip: int = 0, limit: int = 100):
+def read_vessels(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Vessel).offset(skip).limit(limit).all()
 
 
