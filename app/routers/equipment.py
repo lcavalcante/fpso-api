@@ -11,12 +11,11 @@ router = APIRouter(
 
 
 @router.get("/", response_model=list[Equipment])
-def get_equipments(
-    db: Session = Depends(deps.get_db),
-    skip: int = 0,
-    limit: int = 100,):
-    equipments = crud_equipment.read_equipments(db, skip=skip,limit=limit)
-    return  equipments
+def get_equipments(db: Session = Depends(deps.get_db),
+                   skip: int = 0,
+                   limit: int = 100,):
+    equipments = crud_equipment.read_equipments(db, skip=skip, limit=limit)
+    return equipments
 
 
 @router.get("/{equipment_code}", response_model=Equipment)

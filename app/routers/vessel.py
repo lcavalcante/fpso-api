@@ -10,11 +10,11 @@ router = APIRouter(
     prefix="/vessel",
     tags=["vessel"])
 
+
 @router.get("/", response_model=list[Vessel])
-def get_vessels(
-    db: Session = Depends(deps.get_db),
-    skip: int = 0,
-    limit: int = 100,):
+def get_vessels(db: Session = Depends(deps.get_db),
+                skip: int = 0,
+                limit: int = 100):
     vessels = crud_vessel.read_vessels(db, skip=skip, limit=limit)
     return vessels
 
@@ -23,7 +23,8 @@ def get_vessels(
 def post_vessel(vessel: VesselCreate, db: Session = Depends(deps.get_db),):
     db_vessel = crud_vessel.read_vessel(db, code=vessel.code)
     if db_vessel:
-        raise HTTPException(status_code=400, detail="Vessel already registered")
+        raise HTTPException(status_code=400,
+                            detail="Vessel already registered")
     return crud_vessel.create_vessel(db, vessel)
 
 
@@ -40,5 +41,8 @@ def post_vesssel_equipment(
         db: Session = Depends(deps.get_db)):
     db_equipment = crud_equipment.read_equipment(db, equipment.code)
     if db_equipment:
-        raise HTTPException(status_code=400, detail="Equipment already registered")
-    return crud_equipment.create_vessel_equipment(db, equipment, vessel_code=vessel_code)
+        raise HTTPException(status_code=400,
+                            detail="Equipment already registered")
+    return crud_equipment.create_vessel_equipment(db,
+                                                  equipment,
+                                                  vessel_code=vessel_code)

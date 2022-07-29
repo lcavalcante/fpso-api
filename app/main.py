@@ -1,8 +1,6 @@
 from fastapi import FastAPI
 
-from .routers import vessel, equipment
-
-from .db.session import engine, Base
+from app.routers import vessel, equipment
 
 app = FastAPI()
 
