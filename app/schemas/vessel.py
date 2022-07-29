@@ -10,6 +10,7 @@ class VesselBase(BaseModel):
 class VesselCreate(VesselBase):
     pass
 
+
 class Vessel(VesselBase):
     equipments: list[Equipment] = []
 

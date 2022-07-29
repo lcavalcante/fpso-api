@@ -12,7 +12,9 @@ def read_equipments(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Equipment).offset(skip).limit(limit).all()
 
 
-def create_vessel_equipment(db: Session, equipment: EquipmentCreate, vessel_code: str):
+def create_vessel_equipment(db: Session,
+                            equipment: EquipmentCreate,
+                            vessel_code: str):
     db_equipment = Equipment(**equipment.dict(), vessel_code=vessel_code)
     db.add(db_equipment)
     db.commit()
