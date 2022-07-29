@@ -5,6 +5,8 @@ let
     fastapi
     uvicorn
     pynvim
+    sqlalchemy
+    psycopg2
   ]);
 in
 pkgs.mkShell {
