@@ -1,27 +1,15 @@
 from fastapi import FastAPI
 
+from .routers import vessel, equipment
+
 app = FastAPI()
 
 
-@app.get("/v1/vessel")
-def get_vessels():
-    return {"code": "MV102"}
- 
-
-@app.get("/v1/vessel/{vessel_id}")
-def get_vessels_id():
-    return {"code": "MV102"}
+app.include_router(vessel.router)
+app.include_router(equipment.router)
 
 
-@app.get("/v1/equipment")
-def get_equipments():
-    return  {"name": "compressor",
-             "code": "5310B9D7",
-             "location": "Brazil"} 
-
-
-@app.get("/v1/equipment/{equipment_id}")
-def get_equipment_id():
-    return  {"name": "compressor",
-             "code": "5310B9D7",
-             "location": "Brazil"} 
+@app.get("/")
+async def root():
+    """docstring for root"""
+    return {"status": "ok"}
