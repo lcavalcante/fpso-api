@@ -1,4 +1,4 @@
-name: Pylint
+name: Tests
 
 on: [push]
 
@@ -28,7 +28,7 @@ jobs:
         poetry install --no-interaction
     - name: Analysing the code with pylint
       run: |
-        pylint app
+        poetry run pylint app
     - name: Run tests
       run: |
         poetry run pytest
