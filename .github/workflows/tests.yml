@@ -8,6 +8,11 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10"]
+    env:
+      POSTGRES_HOST: "localhost"
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "db"
+      POSTGRES_PASSWORD: "password"
     steps:
       # checkout
     - uses: actions/checkout@v3
