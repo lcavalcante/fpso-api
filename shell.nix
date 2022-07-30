@@ -19,4 +19,8 @@ pkgs.mkShell {
     PYTHONPATH=${python-packages}/${python-packages.sitePackages}
     # maybe set more env-vars
   '';
+  POSTGRES_HOST="localhost";
+  POSTGRES_USER="postgres";
+  POSTGRES_PASSWORD="password";
+  POSTGRES_DB="db";
 }
