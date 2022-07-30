@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app import deps
 from app.crud import crud_equipment, crud_vessel
-from app.schemas.equipment import EquipmentCreate
+from app.schemas.equipment import Equipment, EquipmentCreate
 from app.schemas.vessel import Vessel, VesselCreate
 
 router = APIRouter(
@@ -34,15 +34,28 @@ def get_vessel(vessel_code: str, db: Session = Depends(deps.get_db),):
     return vessel
 
 
-@router.post("/{vessel_code}/equipment")
-def post_vesssel_equipment(
-        vessel_code: str,
-        equipment: EquipmentCreate,
-        db: Session = Depends(deps.get_db)):
+@router.get("/{vessel_code}/equipment", response_model=list[Equipment])
+def get_vessel_equipment(vessel_code: str,
+                         db: Session = Depends(deps.get_db)):
+    equipments = crud_equipment.read_equipments_vessel(db, vessel_code)
+    return equipments
+
+
+@router.get("/{vessel_code}/equipment/active", response_model=list[Equipment])
+def get_active_vessel_equipment(vessel_code: str,
+                                db: Session = Depends(deps.get_db)):
+    equipments = crud_equipment.read_active_equipments_vessel(db, vessel_code)
+    return equipments
+
+
+@router.post("/{vessel_code}/equipment", response_model=Equipment)
+def post_vesssel_equipment(vessel_code: str,
+                           equipment: EquipmentCreate,
+                           db: Session = Depends(deps.get_db)):
     db_equipment = crud_equipment.read_equipment(db, equipment.code)
     if db_equipment:
         raise HTTPException(status_code=400,
                             detail="Equipment already registered")
-    return crud_equipment.create_vessel_equipment(db,
+    return crud_equipment.create_equipment_vessel(db,
                                                   equipment,
                                                   vessel_code=vessel_code)
