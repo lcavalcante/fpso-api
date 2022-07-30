@@ -10,6 +10,6 @@ app.include_router(equipment.router)
 
 
 @app.get("/")
-async def root():
+async def healthz():
     """docstring for root"""
     return {"status": "ok"}
