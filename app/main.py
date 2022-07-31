@@ -11,5 +11,5 @@ app.include_router(equipment.router)
 
 @app.get("/")
 async def healthz():
-    """docstring for root"""
+    """api root is a heatlth check endpoint"""
     return {"status": "ok"}

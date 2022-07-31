@@ -1,10 +1,12 @@
-from fastapi import Depends, APIRouter, HTTPException
+from fastapi import Depends, APIRouter, HTTPException, Response
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app import deps
 from app.crud import crud_equipment, crud_vessel
 from app.schemas.equipment import Equipment, EquipmentCreate
 from app.schemas.vessel import Vessel, VesselCreate
+from app.schemas.message import Message
 
 router = APIRouter(
     prefix="/vessel",
@@ -19,12 +21,15 @@ def get_vessels(db: Session = Depends(deps.get_db),
     return vessels
 
 
-@router.post("/", response_model=Vessel)
+@router.post("/",
+             response_model=Vessel,
+             responses={400: {"model": Message}},
+             status_code=201)
 def post_vessel(vessel: VesselCreate, db: Session = Depends(deps.get_db),):
     db_vessel = crud_vessel.read_vessel(db, code=vessel.code)
     if db_vessel:
-        raise HTTPException(status_code=400,
-                            detail="Vessel already registered")
+        return JSONResponse(status_code=400,
+                            content={"error": "Vessel already registered."})
     return crud_vessel.create_vessel(db, vessel)
 
 
@@ -48,14 +53,17 @@ def get_active_vessel_equipment(vessel_code: str,
     return equipments
 
 
-@router.post("/{vessel_code}/equipment", response_model=Equipment)
+@router.post("/{vessel_code}/equipment",
+             response_model=Equipment,
+             responses={400: {"model": Message}},
+             status_code=201,)
 def post_vesssel_equipment(vessel_code: str,
                            equipment: EquipmentCreate,
                            db: Session = Depends(deps.get_db)):
     db_equipment = crud_equipment.read_equipment(db, equipment.code)
     if db_equipment:
-        raise HTTPException(status_code=400,
-                            detail="Equipment already registered")
+        return JSONResponse(status_code=400,
+                            content={"error": "Equopment already registered."})
     return crud_equipment.create_equipment_vessel(db,
                                                   equipment,
                                                   vessel_code=vessel_code)
