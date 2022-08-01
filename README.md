@@ -59,6 +59,44 @@ Database of choice is the Relational (SQL) [PostgreSQL](https://www.postgresql.o
 Traefik is the chosen reverse-proxy, acting as the gateway to the backend and dealing with routing, load balancing. Traefik was chosen as it has dynamic service discovery and good integration with Docker, specially docker-compose
 
 
-## PART2 - Architecture
+## PART2 - Architecturea
+
+Design the architecture of system to present data of sensor in industry factories and also present the result of data science analysis of this data.
+This system should present the data in your own frontend and in a BI system and be consumed through an API.
+It should be scalable for a high volume of users. You need to be authenticated to access it.
+The system receives data from a data science system and a sensor gathering platform, you should decide how this data is received.
+
 
 Assignment [PART 2](https://docs.google.com/drawings/d/1XFMLhY9DghglmFCSDRGmoQk8F6K_BayHDrNWyC-ROQg/edit?usp=sharing)
+
+> Link above has comments and zoom interaction
+
+
+![part2](./part2/part2.svg)
+
+
+#### Event Streaming
+Kafka is a industry standard event streaming platform, is has great reliability and scalability. Here we also use kafka as a "message queue".
+
+To persist data we also have two sink connectors: HDFS and InfluxDB
+
+HDFS has horizontal scaling and will be used mainly for big data processing by the data science system
+
+InfluxDB will persist all sensor data in a time-series fashion, it would provide our api low latency aggregated data
+
+
+#### Data Science system
+
+The data science system will be able to perform data stream processing connecting to Kafka directly
+
+Also, big data map-reduce is enabled by using spark+hdfs to scale as needed
+
+#### Data APIs
+
+data-api will interact with Kafka and InfluxDB to provide an API to be used with our interfaces (BI, Frontend)
+
+there are services sensor-api and analytics-api
+
+sensor-api: collects data related to sensor-metrics, basically data aggregation and read sensor data
+
+analytics-api: contains data acquired from data engineering such as batch analytics and streaming
