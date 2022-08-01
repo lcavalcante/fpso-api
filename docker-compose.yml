@@ -1,0 +1,38 @@
+version: "3.9"
+services:
+  proxy:
+    image: traefik:v2.8
+    command: --api.insecure=true --providers.docker
+    ports:
+      # The HTTP port
+      - "8088:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  backend:
+    build: .
+    volumes:
+      - logvolume01:/var/log
+    environment:
+      POSTGRES_HOST: "db"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "db"
+    labels:
+      - "traefik.http.routers.backend.rule=Host(`backend`)"
+      - "traefik.http.routers.backend.rule=PathPrefix(`/vessel`, `/equipment`)"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
+
+  db:
+    image: docker.io/postgres:14.4-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: "password" 
+      POSTGRES_DB: "db"
+
+volumes:
+  logvolume01: {}
