@@ -29,3 +29,14 @@ def get_equipment(equipment_code: str, db: Session = Depends(deps.get_db)):
         return JSONResponse(status_code=404,
                             content={"error": "Equipment not found"})
     return equipment
+
+
+@router.put("/inactivate", response_model=list[Equipment] | Equipment)
+def put_equipment_inactivate(codes: str | list[str],
+                             db: Session = Depends(deps.get_db)):
+    if type(codes) == list:
+        equipments = crud_equipment.update_equipments_inactive(db, codes)
+    else:
+        equipments = crud_equipment.update_equipment_inactive(db, codes)
+
+    return equipments

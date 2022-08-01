@@ -36,3 +36,20 @@ def create_equipment_vessel(db: Session,
     db.commit()
     db.refresh(db_equipment)
     return db_equipment
+
+
+def update_equipment_inactive(db: Session, code: str):
+    db_equipment = db.query(Equipment).filter(Equipment.code == code).first()
+    if db_equipment:
+        db_equipment.active = False
+        db.commit()
+        db.refresh(db_equipment)
+    return db_equipment
+
+
+def update_equipments_inactive(db: Session, codes: list[str]):
+    db_equipments = db.query(Equipment).filter(Equipment.code.in_(codes)).all()
+    for equipment in db_equipments:
+        equipment.active = False
+    db.commit()
+    return db_equipments

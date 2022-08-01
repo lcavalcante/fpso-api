@@ -1,5 +1,5 @@
 import json
-import pytest  # pylint: disable=unused-import
+import pytest  # noqa pylint: disable=unused-import
 
 from app.crud import crud_equipment, crud_vessel
 
