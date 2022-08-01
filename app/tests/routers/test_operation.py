@@ -18,7 +18,8 @@ def test_post_operation(test_app, monkeypatch):
     monkeypatch.setattr(crud_operation,
                         "create_operation_equipment",
                         mock_create_operation_equipment)
-    response = test_app.post("/operation/", data=json.dumps(test_request_payload))
+    response = test_app.post("/operation/",
+                             data=json.dumps(test_request_payload))
 
     assert response.status_code == 201
     assert response.json() == test_response_payload

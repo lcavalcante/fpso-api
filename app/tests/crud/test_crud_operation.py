@@ -1,10 +1,9 @@
-from crud import crud_operation
-import pytest
-from schemas.operation import OperationCreate  # noqa pylint: disable=unused-import
+import pytest  # noqa pylint: disable=unused-import
 
 
-from app.crud import crud_equipment, crud_vessel
+from app.crud import crud_equipment, crud_vessel, crud_operation
 from app.schemas.equipment import EquipmentCreate
+from app.schemas.operation import OperationCreate
 from app.schemas.vessel import VesselCreate
 
 
