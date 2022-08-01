@@ -13,6 +13,7 @@ def test_app():
 
 @pytest.fixture()
 def test_db():
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:

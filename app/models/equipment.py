@@ -14,3 +14,4 @@ class Equipment(Base):
     vessel_code = Column(String, ForeignKey("vessels.code"))
 
     equipment_owner = relationship("Vessel", back_populates="equipments")
+    operations = relationship("Operation", back_populates="operation_owner")

@@ -23,7 +23,7 @@ services:
       POSTGRES_DB: "db"
     labels:
       - "traefik.http.routers.backend.rule=Host(`backend`)"
-      - "traefik.http.routers.backend.rule=PathPrefix(`/vessel`, `/equipment`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`) || PathPrefix(`/openapi.json`)"
+      - "traefik.http.routers.backend.rule=PathPrefix(`/vessel`, `/equipment`, `/operation`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`) || PathPrefix(`/openapi.json`)"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
 
   db:
