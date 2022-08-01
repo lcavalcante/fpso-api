@@ -1,9 +1,11 @@
 from fastapi import Depends, APIRouter
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app import deps
 from app.crud import crud_equipment
 from app.schemas.equipment import Equipment
+from app.schemas.message import Message
 
 router = APIRouter(
     prefix="/equipment",
@@ -18,7 +20,12 @@ def get_equipments(db: Session = Depends(deps.get_db),
     return equipments
 
 
-@router.get("/{equipment_code}", response_model=Equipment)
+@router.get("/{equipment_code}",
+            responses={404: {"model": Message}},
+            response_model=Equipment)
 def get_equipment(equipment_code: str, db: Session = Depends(deps.get_db)):
     equipment = crud_equipment.read_equipment(db, code=equipment_code)
+    if equipment is None:
+        return JSONResponse(status_code=404,
+                            content={"error": "Equipment not found"})
     return equipment

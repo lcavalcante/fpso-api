@@ -64,9 +64,9 @@ def get_active_vessel_equipment(vessel_code: str,
              response_model=Equipment,
              responses={400: {"model": Message}},
              status_code=201,)
-def post_vesssel_equipment(vessel_code: str,
-                           equipment: EquipmentCreate,
-                           db: Session = Depends(deps.get_db)):
+def post_vessel_equipment(vessel_code: str,
+                          equipment: EquipmentCreate,
+                          db: Session = Depends(deps.get_db)):
     db_equipment = crud_equipment.read_equipment(db, equipment.code)
     if db_equipment:
         return JSONResponse(status_code=400,
