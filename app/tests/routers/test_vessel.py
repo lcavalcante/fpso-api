@@ -8,24 +8,32 @@ def test_post_vessel(test_app, monkeypatch):
     test_request_payload = {"code": "MV102"}
     test_response_payload = {"code": "MV102", "equipments": []}
 
-    def mock_post(db_session, payload):  # noqa
+    def mock_create_vessel(db_session, payload):  # noqa
         return test_response_payload
 
-    def mock_read(db_session, code):  # noqa
+    def mock_read_vessel(db_session, code):  # noqa
         return None
 
-    monkeypatch.setattr(crud_vessel, "create_vessel", mock_post)
-    monkeypatch.setattr(crud_vessel, "read_vessel", mock_read)
+    monkeypatch.setattr(crud_vessel, "create_vessel", mock_create_vessel)
+    monkeypatch.setattr(crud_vessel, "read_vessel", mock_read_vessel)
     response = test_app.post("/vessel/", data=json.dumps(test_request_payload))
 
     assert response.status_code == 201
     assert response.json() == test_response_payload
 
 
-def test_post_vessel_duplicated(test_app, test_db):
+def test_post_vessel_duplicated(test_app, monkeypatch):
     test_request_payload = {"code": "MV102"}
+    test_response_payload = {"code": "MV102", "equipments": []}
 
-    test_app.post("/vessel/", data=json.dumps(test_request_payload))
+    def mock_create_vessel(db_session, payload):  # noqa
+        return test_response_payload
+
+    def mock_read_vessel(db_session, code):  # noqa
+        return test_response_payload
+
+    monkeypatch.setattr(crud_vessel, "create_vessel", mock_create_vessel)
+    monkeypatch.setattr(crud_vessel, "read_vessel", mock_read_vessel)
     response = test_app.post("/vessel/", data=json.dumps(test_request_payload))
 
     assert response.status_code == 400
@@ -37,24 +45,45 @@ def test_post_vessel_invalid_json(test_app):
     assert response.status_code == 422
 
 
-def test_get_vessel_equipments(test_app, monkeypatch):
+def test_get_vessel_equipment(test_app, monkeypatch):
     test_response_payload = [{"name": "compressor",
                               "code": "5310B9D7",
                               "active": True,
                               "vessel_code": "MV102",
                               "location": "Brazil"}]
 
-    def mock_get(db_session, vessel_code):  # noqa
-        return list(test_response_payload)
+    def mock_read_equipments_vessel(db_session, vessel_code):  # noqa
+        return test_response_payload
 
-    monkeypatch.setattr(crud_equipment, "read_equipments_vessel", mock_get)
+    monkeypatch.setattr(crud_equipment,
+                        "read_equipments_vessel",
+                        mock_read_equipments_vessel)
     response = test_app.get("/vessel/MV102/equipment",)
 
     assert response.status_code == 200
     assert response.json() == test_response_payload
 
 
-def test_post_vessel_equipment(test_app, test_db, monkeypatch):
+def test_get_vessel_equipment_active(test_app, monkeypatch):
+    test_response_payload = [{"name": "compressor",
+                              "code": "5310B9D7",
+                              "active": True,
+                              "vessel_code": "MV102",
+                              "location": "Brazil"}]
+
+    def mock_read_active_equipments_vessel(db_session, vessel_code):  # noqa
+        return test_response_payload
+
+    monkeypatch.setattr(crud_equipment,
+                        "read_active_equipments_vessel",
+                        mock_read_active_equipments_vessel)
+    response = test_app.get("/vessel/MV102/equipment/active",)
+
+    assert response.status_code == 200
+    assert response.json() == test_response_payload
+
+
+def test_post_vessel_equipment(test_app, monkeypatch):
     test_request_payload = {"name": "compressor",
                             "code": "5310B9D7",
                             "location": "Brazil"}
@@ -63,14 +92,19 @@ def test_post_vessel_equipment(test_app, test_db, monkeypatch):
                              "active": True,
                              "vessel_code": "MV102",
                              "location": "Brazil"}
-    vessel_request_payload = {"code": "MV102"}
-    test_app.post("/vessel/", data=json.dumps(vessel_request_payload))
-    vessel_request_payload["equipments"] = list(test_response_payload)
 
-    def mock_post(db_session, payload):  # noqa
-        return vessel_request_payload
+    def mock_create_equipment_vessel(db_session, payload, vessel_code):  # noqa
+        return test_response_payload
 
-    monkeypatch.setattr(crud_vessel, "create_vessel", mock_post)
+    def mock_read_equipment(db_session, code):  # noqa
+        return None
+
+    monkeypatch.setattr(crud_equipment,
+                        "read_equipment",
+                        mock_read_equipment)
+    monkeypatch.setattr(crud_equipment,
+                        "create_equipment_vessel",
+                        mock_create_equipment_vessel)
     response = test_app.post("/vessel/MV102/equipment",
                              data=json.dumps(test_request_payload))
 
@@ -78,7 +112,7 @@ def test_post_vessel_equipment(test_app, test_db, monkeypatch):
     assert response.json() == test_response_payload
 
 
-def test_post_vessel_equipment_duplicated(test_app, test_db):
+def test_post_vessel_equipment_duplicated(test_app, monkeypatch):
     test_request_payload = {"name": "compressor",
                             "code": "5310B9D7",
                             "location": "Brazil"}
@@ -87,49 +121,57 @@ def test_post_vessel_equipment_duplicated(test_app, test_db):
                              "active": True,
                              "vessel_code": "MV102",
                              "location": "Brazil"}
-    vessel_request_payload = {"code": "MV102"}
-    test_app.post("/vessel/", data=json.dumps(vessel_request_payload))
-    test_app.post("/vessel/MV102/equipment",
-                  data=json.dumps(test_request_payload))
 
+    def mock_create_equipment_vessel(db_session, payload, vessel_code):  # noqa
+        return test_response_payload
+
+    def mock_read_equipment(db_session, code):  # noqa
+        return test_response_payload
+
+    monkeypatch.setattr(crud_equipment,
+                        "read_equipment",
+                        mock_read_equipment)
+    monkeypatch.setattr(crud_equipment,
+                        "create_equipment_vessel",
+                        mock_create_equipment_vessel)
     response = test_app.post("/vessel/MV102/equipment",
                              data=json.dumps(test_request_payload))
 
     assert response.status_code == 400
 
 
-def test_get_vessel(test_app, test_db, monkeypatch):
+def test_get_vessel(test_app, monkeypatch):
     test_response_payload = {"code": "MV102", "equipments": []}
 
-    def mock_get(db_session, code):  # noqa
+    def mock_read_vessel(db_session, code):  # noqa
         return test_response_payload
 
-    monkeypatch.setattr(crud_vessel, "read_vessel", mock_get)
+    monkeypatch.setattr(crud_vessel, "read_vessel", mock_read_vessel)
 
     response = test_app.get("/vessel/MV102")
     assert response.status_code == 200
     assert response.json() == test_response_payload
 
 
-def test_get_vessels(test_app, test_db, monkeypatch):
+def test_get_vessels(test_app, monkeypatch):
     test_response_payload = [{"code": "MV102", "equipments": []}]
 
-    def mock_get(db_session, skip, limit):  # noqa
+    def mock_read_vessels(db_session, skip, limit):  # noqa
         return test_response_payload
 
-    monkeypatch.setattr(crud_vessel, "read_vessels", mock_get)
+    monkeypatch.setattr(crud_vessel, "read_vessels", mock_read_vessels)
 
     response = test_app.get("/vessel/")
     assert response.status_code == 200
     assert response.json() == test_response_payload
 
 
-def test_get_vessel_not_found(test_app, test_db, monkeypatch):
+def test_get_vessel_not_found(test_app, monkeypatch):
 
-    def mock_get(db_session, code):  # noqa
+    def mock_read_vessel(db_session, code):  # noqa
         return None
 
-    monkeypatch.setattr(crud_vessel, "read_vessel", mock_get)
+    monkeypatch.setattr(crud_vessel, "read_vessel", mock_read_vessel)
 
     response = test_app.get("/vessel/FOO")
     assert response.status_code == 404
