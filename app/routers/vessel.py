@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter, HTTPException, Response
+from fastapi import Depends, APIRouter
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
@@ -18,6 +18,7 @@ def get_vessels(db: Session = Depends(deps.get_db),
                 skip: int = 0,
                 limit: int = 100):
     vessels = crud_vessel.read_vessels(db, skip=skip, limit=limit)
+
     return vessels
 
 
@@ -33,9 +34,15 @@ def post_vessel(vessel: VesselCreate, db: Session = Depends(deps.get_db),):
     return crud_vessel.create_vessel(db, vessel)
 
 
-@router.get("/{vessel_code}", response_model=Vessel)
+@router.get("/{vessel_code}",
+            responses={404: {"model": Message}},
+            response_model=Vessel)
 def get_vessel(vessel_code: str, db: Session = Depends(deps.get_db),):
     vessel = crud_vessel.read_vessel(db, code=vessel_code)
+    if vessel is None:
+        return JSONResponse(status_code=404,
+                            content={"error": "Vessel not found"})
+
     return vessel
 
 
@@ -63,7 +70,7 @@ def post_vesssel_equipment(vessel_code: str,
     db_equipment = crud_equipment.read_equipment(db, equipment.code)
     if db_equipment:
         return JSONResponse(status_code=400,
-                            content={"error": "Equopment already registered."})
+                            content={"error": "Equipment already registered."})
     return crud_equipment.create_equipment_vessel(db,
                                                   equipment,
                                                   vessel_code=vessel_code)

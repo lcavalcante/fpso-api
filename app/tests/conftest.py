@@ -1,4 +1,3 @@
-from _pytest.fixtures import pytest_fixture_setup
 import pytest
 from starlette.testclient import TestClient
 from app.db.session import Base, SessionLocal, engine

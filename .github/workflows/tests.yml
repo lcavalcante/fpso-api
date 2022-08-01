@@ -3,7 +3,7 @@ name: Tests
 on: [push]
 
 jobs:
-  build:
+  unit-tests:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -13,6 +13,22 @@ jobs:
       POSTGRES_USER: "postgres"
       POSTGRES_DB: "db"
       POSTGRES_PASSWORD: "password"
+    services:
+      postgres:
+        image: docker.io/postgres:14.4-alpine
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: "password"
+          POSTGRES_DB: "db"
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
     steps:
       # checkout
     - uses: actions/checkout@v3
