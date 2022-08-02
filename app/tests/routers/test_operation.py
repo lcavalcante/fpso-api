@@ -25,6 +25,25 @@ def test_post_operation(test_app, monkeypatch):
     assert response.json() == test_response_payload
 
 
+def test_post_operation_invalid_cost(test_app, monkeypatch):
+    test_request_payload = {"code": "5310B9D7", "type": "x", "cost": "1.a"}
+    test_response_payload = {"type": "x",
+                             "cost": "1.a",
+                             "code": "5310B9D7",
+                             "id": 4}
+
+    def mock_create_operation_equipment(db_session, payload):  # noqa
+        return test_response_payload
+
+    monkeypatch.setattr(crud_operation,
+                        "create_operation_equipment",
+                        mock_create_operation_equipment)
+    response = test_app.post("/operation/",
+                             data=json.dumps(test_request_payload))
+
+    assert response.status_code == 400
+
+
 def test_post_opeartion_invalid_json(test_app):
     response = test_app.post("/operation/",
                              data=json.dumps({"title": "something"}))
