@@ -77,8 +77,14 @@ def get_operation_cost_vessel(vessel_code: str,
 
 
 @router.post("/",
+             responses={400: {"model": Message}},
              response_model=Operation,
              status_code=201)
 def post_operation(operation: OperationCreate,
                    db: Session = Depends(deps.get_db),):
-    return crud_operation.create_operation_equipment(db, operation)
+    try:
+        int(operation.cost)
+        return crud_operation.create_operation_equipment(db, operation)
+    except ValueError:
+        return JSONResponse(status_code=400,
+                            content={"error": "cost must be numeric"})
