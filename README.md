@@ -49,6 +49,8 @@ You can run tests executing:
 docker compose run backend pytest -vv --cov=app --cov-report=term-missing app
 ```
 
+> **NOTE:** Running tests clears the Database, therefore you need to run `docker compose down` followed by `docker compose up` and rerun migrations if you want to access the API
+
 
 ## Components
 

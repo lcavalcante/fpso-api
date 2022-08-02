@@ -1,38 +1,57 @@
-version: "3.9"
+name: fpso-api
 services:
-  proxy:
-    image: traefik:v2.8
-    command: --api.insecure=true --providers.docker
-    ports:
-      # The HTTP port
-      - "8088:80"
-      # The Web UI (enabled by --api.insecure=true)
-      - "8080:8080"
-    volumes:
-      # So that Traefik can listen to the Docker events
-      - /var/run/docker.sock:/var/run/docker.sock
-
   backend:
-    build: .
-    volumes:
-      - logvolume01:/var/log
+    build:
+      context: /home/lcavalcante/repo/fpso-api
+      dockerfile: Dockerfile
     environment:
-      POSTGRES_HOST: "db"
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "password"
-      POSTGRES_DB: "db"
+      POSTGRES_DB: db
+      POSTGRES_HOST: db
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: postgres
     labels:
-      - "traefik.http.routers.backend.rule=Host(`backend`)"
-      - "traefik.http.routers.backend.rule=PathPrefix(`/vessel`, `/equipment`, `/operation`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`) || PathPrefix(`/openapi.json`)"
-      - "traefik.http.services.backend.loadbalancer.server.port=8000"
-
+      traefik.http.routers.backend.rule: PathPrefix(`/`, `/vessel`, `/equipment`, `/operation`)
+        || PathPrefix(`/docs`) || PathPrefix(`/redoc`) || PathPrefix(`/openapi.json`)
+      traefik.http.services.backend.loadbalancer.server.port: "8000"
+    networks:
+      default: null
+    volumes:
+    - type: volume
+      source: logvolume01
+      target: /var/log
+      volume: {}
   db:
-    image: docker.io/postgres:14.4-alpine
-    ports:
-      - "5432:5432"
     environment:
-      POSTGRES_PASSWORD: "password" 
-      POSTGRES_DB: "db"
-
+      POSTGRES_DB: db
+      POSTGRES_PASSWORD: password
+    image: docker.io/postgres:14.4-alpine
+    networks:
+      default: null
+  proxy:
+    command:
+    - --api.insecure=true
+    - --providers.docker
+    image: traefik:v2.8
+    networks:
+      default: null
+    ports:
+    - mode: ingress
+      target: 80
+      published: "8088"
+      protocol: tcp
+    - mode: ingress
+      target: 8080
+      published: "8080"
+      protocol: tcp
+    volumes:
+    - type: bind
+      source: /var/run/docker.sock
+      target: /var/run/docker.sock
+      bind:
+        create_host_path: true
+networks:
+  default:
+    name: fpso-api_default
 volumes:
-  logvolume01: {}
+  logvolume01:
+    name: fpso-api_logvolume01
